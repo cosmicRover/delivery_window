@@ -1,4 +1,5 @@
 import time
+from datetime import datetime as dt
 
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import StaleElementReferenceException
@@ -13,7 +14,7 @@ from sms_server import SmsServer
 
 
 class BrowserDriver:
-    #data prep from the UserCreds class
+    # data prep from the UserCreds class
     def __init__(self):
         creds = UserCreds()
         self.email = creds.getEmail()
@@ -21,9 +22,25 @@ class BrowserDriver:
         self.ukey = creds.getUniqueKey()
         self.wday = creds.getWatchDate()
         self.getPhoneNumber = creds.getPhoneNum()
+        self.xPathDict = {
+            'url': 'http://www.amazon.com/',
+            'nav': '//*[@id="nav-link-accountList"]',
+            'email': '//*[@id="ap_email"]',
+            'continue': '//*[@id="continue"]',
+            'pass': '//*[@id="ap_password"]',
+            'submit': '//*[@id="signInSubmit"]',
+            'cart': '//*[@id="nav-cart"]',
+            'fresh': '//*[@id="sc-alm-buy-box-ptc-button-' + self.ukey + '"]/span/input',
+            'final_continue': '//*[@id="a-autoid-0"]/span/a',
+            'attended': '//*[@id="servicetype-selector-button-attended-announce"]',
+            'watch_day': '//*[@id="date-button-' + self.wday + '-announce"]'
+        }
+        self.cssDict = {
+            'slot': '#slot-container-ATTENDED > div > div > div > span'
+        }
 
-        #configure webdrive accroding to platform
-        self.browser = webdriver.Chrome(creds.getUserPlatform()) 
+        # configure webdrive accroding to platform
+        self.browser = webdriver.Chrome(creds.getUserPlatform())
 
     def findInputFieldByXpathAndPopulate(self, xpath, value):
         field = self.browser.find_element_by_xpath(xpath)
@@ -44,13 +61,21 @@ class BrowserDriver:
 
     def getDeleiverySlotStatus(self):
         status = self.browser.find_elements_by_css_selector(
-            "#slot-container-ATTENDED > div > div > div > span")
-        return status[2].text
+            self.cssDict['slot'])
+
+        results = []
+
+        for x in status:
+            results.append(x.text)
+
+        return any(e for e in results if e.startswith("No attended delivery windows are available for"))
 
     def watchForSlots(self):
         self.waitDriver(
-            10.0, '//*[@id="servicetype-selector-button-attended-announce"]')
-        self.waitDriver(10.0, '//*[@id="date-button-'+ self.wday + '-announce"]')
+            10.0, self.xPathDict['attended'])
+        self.waitDriver(
+            10.0, self.xPathDict['watch_day'])
+        print(dt.now())
 
     def sendSms(self):
         print("sending sms")
@@ -58,28 +83,25 @@ class BrowserDriver:
         sms.executeSms()
 
     def executeWatch(self):
-        self.launchUrl('http://www.amazon.com/')
-        self.waitDriver(10.0, '//*[@id="nav-link-accountList"]')
-        self.findInputFieldByXpathAndPopulate(
-            '//*[@id="ap_email"]', self.email)
-        self.waitDriver(10.0, '//*[@id="continue"]')
-        self.findInputFieldByXpathAndPopulate(
-            '//*[@id="ap_password"]', self.password)
-        self.waitDriver(10.0, '//*[@id="signInSubmit"]')
-        self.waitDriver(10.0, '//*[@id="nav-cart"]')
-        self.waitDriver(
-            10.0, '//*[@id="sc-alm-buy-box-ptc-button-'+ self.ukey + '"]/span/input')
-        self.waitDriver(10.0, '//*[@id="a-autoid-0"]/span/a')
+        for key in self.xPathDict:
+            if key == 'url':
+                self.launchUrl(self.xPathDict[key])
+            else:
+                self.waitDriver(10.0, self.xPathDict[key])
+
+            if key == 'final_continue':
+                break
+
         self.watchForSlots()
 
-        #loop until a delivery window is available
-        status = self.getDeleiverySlotStatus()
-        while "No attended delivery windows are available for" in status:
-            print(status)
-            time.sleep(5)
+        # loop until a delivery window is available
+        isUnAvailable = self.getDeleiverySlotStatus()
+        while isUnAvailable:
+            print("searching for a slot")
+            time.sleep(60)
             self.browser.refresh()
             self.watchForSlots()
-            status = self.getDeleiverySlotStatus()
+            isUnAvailable = self.getDeleiverySlotStatus()
         else:
             print("found window!!!!")
             self.sendSms()

@@ -1,7 +1,7 @@
 class UserCreds:
     '''
-    step[0]
-    ******** make sure you have python3 and pip installed and run(mac/linux) -> sudo pip3 install selenium 
+    [step0]
+    ******** make sure you have python3 and pip installed: run(mac/linux) -> sudo pip install selenium 
     *** for windows -> https://www.liquidweb.com/kb/install-pip-windows/ the run pip install selenium
     '''
 
@@ -58,16 +58,16 @@ class UserCreds:
     '''
     [step6]
     Supported providers. Pick your provider from here:
-    AT&T: [number]@txt.att.net
-    Sprint: [number]@messaging.sprintpcs.com or [number]@pm.sprint.com
-    T-Mobile: [number]@tmomail.net
-    Verizon: [number]@vtext.com
-    Boost Mobile: [number]@myboostmobile.com
-    Cricket: [number]@sms.mycricket.com
-    Metro PCS: [number]@mymetropcs.com
-    Tracfone: [number]@mmst5.tracfone.com
-    U.S. Cellular: [number]@email.uscc.net
-    Virgin Mobile: [number]@vmobl.com
+    AT&T: @txt.att.net
+    Sprint: @messaging.sprintpcs.com or @pm.sprint.com
+    T-Mobile: @tmomail.net
+    Verizon: @vtext.com
+    Boost Mobile: @myboostmobile.com
+    Cricket: @sms.mycricket.com
+    Metro PCS: @mymetropcs.com
+    Tracfone: @mmst5.tracfone.com
+    U.S. Cellular: @email.uscc.net
+    Virgin Mobile: @vmobl.com
     '''
 
     def getMobileServiceProvider(self):
@@ -78,7 +78,7 @@ class UserCreds:
     Since I tested on gmail, I had to turn on Imap on the settings and then,
     turn on "Less Secure app access" via the account's security page. I'll include a helpful video tutorial below
     https://www.youtube.com/watch?v=D-NYmDWiFjU
-    Below takes in your account email and pass. You can use a throwaway email for this provided you enable imap and turn
+    Below takes in your account email and pass. You can use a throwaway email for this provided that you enable imap and turn
     on less secure apps.
     '''
 
