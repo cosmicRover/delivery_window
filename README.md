@@ -11,5 +11,5 @@ This python program uses selenium to launch chrome, log-in to amazon, and wait f
 :reminder_ribbon: :reminder_ribbon: followed the steps on user_creds.py<br/>
 
 # Run
-cd into the delivery_window directory, then run: python3 driver.py<br/>
+```cd``` into the ```delivery_window``` directory, then run: ```python3 driver.py```<br/>
 :reminder_ribbon: be sure to exit all current chrome sessions first.
