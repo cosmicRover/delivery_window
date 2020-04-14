@@ -36,7 +36,7 @@ class BrowserDriver:
             'watch_day': '//*[@id="date-button-' + self.wday + '-announce"]'
         }
         self.cssDict = {
-            'slot': '#slot-container-ATTENDED > div > div > div > span'
+            'slot': '#slot-container-ATTENDED > div > div > div > span',
         }
 
         # configure webdrive accroding to platform
@@ -83,14 +83,17 @@ class BrowserDriver:
         sms.executeSms()
 
     def executeWatch(self):
-        for key in self.xPathDict:
-            if key == 'url':
-                self.launchUrl(self.xPathDict[key])
-            else:
-                self.waitDriver(10.0, self.xPathDict[key])
-
-            if key == 'final_continue':
-                break
+        self.launchUrl(self.xPathDict['url'])
+        self.waitDriver(10.0, self.xPathDict['nav'])
+        self.waitDriver(10.0, self.xPathDict['email'])
+        self.findInputFieldByXpathAndPopulate(self.xPathDict['email'], self.email)
+        self.waitDriver(10.0, self.xPathDict['continue'])
+        self.findInputFieldByXpathAndPopulate(self.xPathDict['pass'], self.password)
+        self.waitDriver(10.0, self.xPathDict['submit'])
+        self.waitDriver(10.0, self.xPathDict['cart'])
+        self.waitDriver(10.0, self.xPathDict['fresh'])
+        self.waitDriver(10.0, self.xPathDict['final_continue'])
+        self.waitDriver(10.0, self.xPathDict['attended'])
 
         self.watchForSlots()
 
@@ -98,7 +101,7 @@ class BrowserDriver:
         isUnAvailable = self.getDeleiverySlotStatus()
         while isUnAvailable:
             print("searching for a slot")
-            time.sleep(60)
+            time.sleep(60) #refresh time in seconds
             self.browser.refresh()
             self.watchForSlots()
             isUnAvailable = self.getDeleiverySlotStatus()
